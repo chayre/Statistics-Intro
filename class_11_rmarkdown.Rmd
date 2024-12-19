@@ -1,0 +1,110 @@
+---
+title: "Statistics with R, class 11"
+subtitle: "Compiling data reports"
+author: |
+     | Grzegorz Krajewski
+     |
+     | Faculty of Psychology
+     | University of Warsaw
+     |
+     | krajewski@psych.uw.edu.pl
+date: '14 November 2024'
+output:
+     beamer_presentation:
+          incremental: false
+          toc: false
+theme: "Warsaw"
+header-includes: 
+- \AtBeginSubsection{}
+---
+
+# Producing documents
+
+## Producing documents (1)
+
+- Word processors
+    - e.g., MS Word
+    - WYSIWYG (*what you see is what you get*)
+    - focus on visual aspects
+- *Markup* languages
+    - plain text (always better than proprietary format)
+    - set of tags that *mark up* structure (e.g., headings, subheading),
+    special fragments (e.g., emphasis)
+    - focus on structure
+- Some *markup* languages:
+    - HTML (webpages)
+    - LaTeX (pdf documents, perfect for math formulas)
+
+
+## Producing documents (2)
+
+- **Markdown**:
+    - extremely simple (5 minutes learning)
+    - clear and readable (source code can be read just like final formatted document)
+    - easily convertible to any other markup code (easy to generate pdf or html)
+- Learn Markdown:
+    - [en.wikipedia.org/wiki/Markdown](https://en.wikipedia.org/wiki/Markdown)
+    - [www.markdownguide.org/basic-syntax](https://www.markdownguide.org/basic-syntax/)
+
+
+# Producing data reports
+
+## Analysing data
+
+1. Excel, SPSS, other GUI software
+    — **very bad**
+    - no trace of analyses, only results, not reproducible
+2. R console
+    — **poor**
+    - might be possible to recreate analyses from R history
+3. R script file
+    — **not bad**
+    - after a month you might need several days to remember what you have done
+4. Heavily *commented* R script file
+    — **good**
+    - if there are properly placed informative comments, even after a decade someone will understand
+5. File with *marked up text* intertwined with *code chunks*
+    - **fantastic**
+    - more readable than option 4 and can be converted to pdf, html, docx to share
+
+## Working in *RStudio*
+
+- `knitr`: package to intertwine (*knit*) text with code chunks
+- `RMarkdown`: package to easily convert markdown with R chunks to HTML, pdf etc.
+- In RStudio: New File > R Markdown...
+    - Have a look at the produced template
+    - Try to *knit*
+
+## Working with `RMarkdown`
+
+- `Rmd` file extension
+- RMarkdown document elements:
+    - Header delimited with `---`
+    - Markdown formatted text chunks
+    - Code chunks
+- `knitr` code chunks:
+    - delimited with three `backticks`
+    - labelled in `{}` with `r` followed by chunk label
+    - `knitr` options comma separated after label
+    - `knitr` documentation: [yihui.org/knitr](https://yihui.org/knitr/)
+    - option values may be set in the setup chunk (and work as defaults)
+- *R* code may be inserted within text using `backticks`:
+
+<!-- \pause -->
+
+###
+There were `` `r
+nrow(titanic)` passengers on board.
+
+## Working with chunks
+
+- Code chunks in the editor window:
+    - are *greyed out*
+    - have a series of buttons in the top right corner
+- If you *knit*, all chunks (and inline code) are executed
+    - unless `eval` set to `FALSE`
+- You can execute code without kniting by:
+    - sending selected lines to console
+    - running a whole chunk (green "play" button in the chunk corner)
+    - results appear below the chunk (and in the console)
+

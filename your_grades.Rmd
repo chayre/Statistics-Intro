@@ -1,0 +1,24 @@
+---
+title: "Your grades"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+Folder "Your_grades" should contain an `.RData` file named after you.
+
+```{r dir-listing}
+(list.files("Your_grades", "RData") -> file)
+```
+
+Your grades:
+
+```{r grades}
+load(paste("Your_grades", file, sep = "/"))
+grades
+```
+
+

@@ -1,0 +1,472 @@
+---
+title: "Statistics with R, class 17"
+subtitle: "*t* tests"
+author: |
+     | Grzegorz Krajewski
+     |
+     | Faculty of Psychology
+     | University of Warsaw
+     |
+     | krajewski@psych.uw.edu.pl
+date: '12 December 2024'
+output: html_document
+theme: "Warsaw"
+header-includes: 
+- \AtBeginSubsection{}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      prompt=TRUE,
+                      comment='',
+                      results="hide",
+                      fig.show = TRUE,
+                      fig.align="center",
+                      out.height="80%")
+```
+
+
+# Previously in "Statistics with *R*"...
+
+## Standardised sampling distribution of mean
+
+```{r ssdm, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="", main=expression("Standardised sampling distribution of mean"))
+mtext(expression(italic(z)), 1, 2, at=3.5, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+axis(1, at=qnorm(c(.025,.5,.975)), labels=c("", 0, ""), lty=2, lwd.ticks=1, lwd=0)
+segments(x0=qnorm(c(.025,.975)), y0=-1, y1=.08, lty=2)
+text(qnorm(c(.025,.975))+c(-.4,.5), .002, "2.5%", cex=.75)
+text(qnorm(c(.025,.5,.975)), -.03,
+     labels=c(expression(qnorm(.025)), "", expression(qnorm(.975))),
+	srt=45, xpd=NA, cex=.7, pos=2, offset=-.5)
+text(2.5, .2, expression(z == frac(bar(X) - mu, sigma/sqrt(N))), cex=3)
+```
+
+
+## Standardised sampling distribution of mean
+
+```{r ssdm2, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean"))
+axis(1, qnorm(c(.025, .5, .975)),
+     c(expression(bar(X)[i]), expression(mu), expression(bar(X)[i])), cex.axis=1.2)
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+mtext(expression(mu - qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=-1, cex=.8)
+mtext(expression(mu + qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=1, cex=.8)
+```
+
+
+## *t* distribution
+
+```{r td, fig.show = TRUE, out.height = "80%"}
+curve(dnorm, -4, 4, lwd=2 , xaxt="n", yaxt="n", xlab="", ylab="", main=expression(paste(italic(t), " distributions")))
+text(2.3, .3, expression(paste(italic(z), " distribution")), col="black", cex=1.3, pos=4)
+mtext(0, 1, 0, cex=.8)
+mtext(expression(z == (bar(X) - mu[0]) / (sigma/sqrt(N))), 1, 1.2, cex=1.2)
+mtext(expression(t == (bar(X) - mu[0]) / (s/sqrt(N))), 1, 3, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+segments(x0=qnorm(.975), y0=-1, y1=.08, lty=2)
+for (df in c(5, 10, 15, 20)) {
+	curve(dt(x, df), col=df, add=TRUE)
+	text(2.3, .3-.006*df, paste("df =", df), col=df, cex=1.3, pos=4)
+	segments(x0=qt(.975, df=df), y0=-1, y1=.08, lty=2, col=df)
+}
+```
+
+## *t* distribution
+
+```{r td_tail, fig.show = TRUE, out.height = "80%"}
+par(mar=c(6, 4, 4, 2))
+curve(dnorm, 1.95, 3, lwd=2 , xaxt="n", yaxt="n", xlab="", ylab="", main=expression(paste(italic(t), " distributions: critical regions")))
+axis(1, at=c(2, 3))
+mtext(expression(italic(z)), 1, 2.2, at=2.8, cex=1.4)
+mtext(expression(italic(t)), 1, 3.2, at=2.8, cex=1.4)
+mtext(expression(italic(p)), 2, 1, at=.06, cex=1.4, las=1)
+segments(x0=qnorm(.975), y0=-1, y1=.08, lty=2)
+text(qnorm(.975), -.006, labels=expression(qnorm(.975)), srt=45, xpd=NA, cex=.6, pos=2, offset=.2)
+for (df in c(5, 10, 15, 20)) {
+	curve(dt(x, df), col=df, add=TRUE)
+	text(2.3, .3-.006*df, paste("df =", df), col=df, cex=1.3, pos=4)
+	segments(x0=qt(.975, df=df), y0=-1, y1=.08, lty=2, col=df)
+	text(qt(.975, df), -.006, labels=paste("qt(.975, ", df, ")", sep=""), srt=45, xpd=NA, cex=.6, pos=2, offset=.2, col=df)
+}
+```
+
+
+## Confidence interval around sample mean
+
+```{r ci_plot}
+plot(-1:5, seq(0, .4, length.out=7), type="n", xaxt="n", yaxt="n", xlab="", ylab="", main=expression("95% CI around mean"))
+curve(dnorm, -4, 4.5, add=TRUE)
+abline(v=qnorm(.975), lty=3)
+curve(dnorm(x, 2*qnorm(.975),), -.5, 8, add=TRUE)
+abline(v=c(0, 2*qnorm(.975)), lty=2)
+curve(dnorm(x, 1,), -3, 5, col="darkgrey", add=TRUE)
+curve(dnorm(x, 2.2,), -2, 6, col="darkgrey", add=TRUE)
+curve(dnorm(x, 3.5,), 0, 7, col="darkgrey", add=TRUE)
+mtext(expression(mu[i]), 1, .2, at=c(1, 2.2, 3.5), col="darkgrey")
+axis(1, at=c(qnorm(c(.5,.975)), 2*qnorm(.975)), line=1.2,
+	labels=c(expression(mu[lower]), expression(bar(X)), expression(mu[upper])))
+mtext(expression(bar(X) - qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=1, cex=.7)
+mtext(expression(bar(X) + qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=3, cex=.7)
+```
+
+## Standardised sampling distribution of mean
+
+```{r ssdm_0, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="", main=expression("Standardised sampling distribution of mean"))
+mtext(expression(italic(z)), 1, 2, at=3.5, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+axis(1, at=qnorm(c(.025,.5,.975)), labels=c("", 0, ""), lty=2, lwd.ticks=1, lwd=0)
+segments(x0=qnorm(c(.025,.975)), y0=-1, y1=.08, lty=2)
+text(qnorm(c(.025,.975))+c(-.4,.5), .002, "2.5%", cex=.75)
+text(qnorm(c(.025,.5,.975)), -.03,
+     labels=c(expression(qnorm(.025)), "", expression(qnorm(.975))),
+	srt=45, xpd=NA, cex=.7, pos=2, offset=-.5)
+text(2.5, .2, expression(z == frac(bar(X) - mu[0], sigma/sqrt(N))), cex=3)
+```
+
+## Standardised sampling distribution of mean
+
+```{r ssdm2_0, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean"))
+axis(1, qnorm(c(.025, .5, .975)),
+     c(expression(bar(X)[i]), expression(mu[0]), expression(bar(X)[i])), cex.axis=1.2)
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+mtext(expression(mu[0] - qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=-1, cex=.8)
+mtext(expression(mu[0] + qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=1, cex=.8)
+```
+
+
+# One-sample tests of mean
+
+## Lady tasting tea
+
+```{r binom}
+n <- 10; p <- .5
+plot(0:n, dbinom(0:n, n, p), main="Binomial distribution",
+    xlab="Number correct", ylab="Probability", pch=19)
+text(0:n, dbinom(0:n, n, p), round(dbinom(0:n, n, p), 3), pos=3)
+abline(v = c(1.5, 8.5), lty = 2, col = "red")
+```
+
+## Statistical tests
+
+- Assume *null hypothesis*, $h_0$ (perhaps make other necessary
+          *assumptions* too).
+- Decide on *significance level* $\alpha$
+          (conventionally default to 0.05).
+- Construct *sample distribution* of the *test statistic*,
+          assuming the truth of $h_0$ (and considering the other assumptions).
+- Identify *critical region* (based on $\alpha$).
+- Draw a random sample, collect measurements, calculate the statistic.
+- Reject, or not, $h_0$.
+
+
+## *z* test
+
+- 30 CogSci students' mean IQ is 105.
+- Do they come from the population with mean IQ = 100?
+- $h_0$: $\mu_0 = 100$
+- $z = (\bar{X} - \mu_0) / (\sigma / \sqrt{N})$
+
+<!-- \pause -->
+
+```{r z_test, out.height="60%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Standard normal distribution"))
+axis(1, qnorm(c(.025, .5, .975)),
+     c(expression(- qnorm(.975)), 0, expression(qnorm(.975))), cex.axis=1.2)
+abline(v = qnorm(c(.025, .975)), lty=2, col = "red")
+text(qnorm(c(.01, .995)), 0, "2.5%", col = "red")
+```
+
+
+## One sample *t* test (1)
+
+- From many years' experience we know that
+CogSci students pass a particular exam with
+an average score of 26.5. This year there are 10 new
+students and their scores are:
+
+```{r one_sample_t_data, echo = TRUE}
+scores <- c(10, 50, 46, 32, 37, 28, 41, 20, 32, 43)
+```
+
+- Are these students better than
+an average CogSci student?
+    - I.e., do they come from a population with a different mean?
+- $h_0$: $\mu_0 = 26.5$
+- $t = (\bar{X} - \mu_0) / (s / \sqrt{N})$
+
+
+## One sample *t* test (2)
+
+```{r t_test_1, out.height="60%"}
+n <- 30
+curve(dt(x, n-1), -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+      main=expression(paste(italic(t), " distribution")))
+axis(1, qt(c(.025, .5, .975), n-1),
+     c(expression(- qt(.975, n-1)), 0, expression(qt(.975, n-1))), cex.axis=1.2)
+abline(v = qt(c(.025, .975), n-1), lty=2, col = "red")
+text(qnorm(c(.01, .995)), 0, "2.5%", col = "red")
+```
+
+<!-- \pause -->
+
+```{r one_sample_t_1, echo = TRUE}
+qt(.975, length(scores) - 1)
+t.statistic <- (mean(scores) - 26.5) /
+     (sd(scores) / sqrt(length(scores)))
+```
+
+
+## One sample *t* test (3)
+
+```{r t_test_2, out.height="60%"}
+curve(dt(x, n-1), -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+      main=expression(paste(italic(t), " distribution")))
+axis(1, qt(c(.025, .5, .975), n-1),
+     c(expression(- qt(.975, n-1)), 0, expression(qt(.975, n-1))), cex.axis=1.2)
+abline(v = qt(c(.025, .975), n-1), lty=2, col = "red")
+text(qnorm(c(.01, .995)), 0, "2.5%", col = "red")
+axis(1, t.statistic,
+     expression(italic(t)), cex.axis=1.2, col = "blue", col.ticks = "blue", line = 2)
+abline(v = t.statistic, lty=2, lwd = 2, col = "blue")
+```
+
+```{r one_sample_t_2, echo = TRUE}
+pt(t.statistic, length(scores) - 1, lower.tail=F) * 2
+# Times 2 to take into account the other tail!
+```
+
+
+# Paired-sample *t* test
+
+## Paired-sample *t* test (1)
+
+- Two paired samples
+    - e.g., repeated measures, siblings etc.
+    - differences between paired measurements
+    - $h_0$: mean difference ($M$) = 0
+- 49 CogSci students took IQ test before and after first semester
+and for each of them the difference between both scores was calculated
+- The mean difference was 0.5 (in favour of the second measurement)
+- Standard deviation of the differences was 1.75. Can we say that
+a semester of studying CogSci improves intelligence?
+- $t = M / (s / \sqrt{N})$
+
+<!-- \pause -->
+
+```{r paired_sample_t_1, echo = TRUE}
+.5 / (1.75 / sqrt(49))
+pt(2, 48, lower.tail=F) * 2
+```
+
+## Paired-sample *t* test (2)
+
+- American scientists compared sexual satisfaction of women and men
+staying in long term relationships
+- 15 couples were chosen at random and each person
+estimated their satisfaction on 1-5 scale
+- There are 15 answers from men and 15 answers from women.
+Why should we compare them pairwise?
+
+<!-- \pause -->
+
+```{r paired_sample_t_data, echo = TRUE}
+m <- c(1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5)
+f <- c(1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5)
+m - f # differences we want to analyse
+```
+
+<!-- \pause -->
+
+```{r paired_sample_t_result, echo = TRUE}
+mean(m-f) / (sd(m-f) / sqrt(length(m-f)))
+```
+
+
+# Two Sample *t* test
+
+## Two independent samples
+
+- Most of the time we deal with two samples that are not matched
+- $h_0$: both samples come from populations with the same mean
+($\mu_1 - \mu_2 = 0$)
+- Statistic: difference between sample means ($\bar{X_1} - \bar{X_2}$)
+- How does sampling distribution of $\bar{X_1} - \bar{X_2}$ look like?
+- *Additional assumption*: both samples come from populations
+with the same variance ($\sigma^2_1 - \sigma^2_2 = 0$)
+
+
+## Sampling distribution of $\bar{X_1} - \bar{X_2}$ (1)
+
+- We know sampling distribution of a single mean
+    - and can simulate it...
+
+<!-- \pause -->
+
+```{r sampling_mean, echo = TRUE}
+N <- 25; mu <- 100; sigma <- 15
+i <- 10000
+sampling_mean <- replicate(i,mean(rnorm(N,mu,sigma)))
+```
+<!-- \pause -->
+
+- Check its shape, mean, and standard deviation (and variance)
+
+<!-- \pause -->
+
+```{r sampling_mean_shape, echo = TRUE, fig.show='hide'}
+hist(sampling_mean, prob = T) # simulation
+curve(dnorm(x, mu, sigma / sqrt(N)), add=T) # theory
+```
+
+<!-- \pause -->
+
+```{r sampling_mean_mean, echo = TRUE}
+mean(sampling_mean) # equals mu (population mean)
+```
+
+<!-- \pause -->
+
+```{r sampling_mean_sd, echo = TRUE}
+sd(sampling_mean) # simulation
+sigma / sqrt(N) # theory
+```
+
+<!-- \pause -->
+
+```{r sampling_mean_var, include=FALSE}
+var(sampling_mean) # simulation
+sigma^2 / N # theory
+```
+
+```{r t_statistic, include=FALSE}
+(sampling_mean - mean(sampling_mean)) / sd(sampling_mean) -> z_statistic
+hist(z_statistic, probability = TRUE); curve(dnorm, add = TRUE)
+
+replicate(i, {
+     s <- rnorm(N, mu, sigma)
+     (mean(s) - 100) / (sd(s) / sqrt(N))
+}) -> t_statistic
+
+hist(t_statistic, probability = TRUE); curve(dt(x, N-1), add = TRUE)
+```
+
+
+## Sampling distribution of $\bar{X_1} - \bar{X_2}$ (2)
+
+- Simulate sampling distribution of $\bar{X_1} - \bar{X_2}$
+
+<!-- \pause -->
+
+```{r sampling_diff_mean1, echo = TRUE, fig.show='hide'}
+sampling_diff <- replicate(i,
+                           mean(rnorm(N, mu, sigma)) -
+                           mean(rnorm(N, mu, sigma)))
+hist(sampling_diff)
+```
+
+<!-- \pause -->
+
+```{r sampling_diff_mean1a, echo = TRUE, fig.show='hide'}
+mean(sampling_diff) # equals 0 (consistent with h0)
+var(sampling_diff)
+(sigma^2 / N) * 2
+```
+
+
+## Sampling distribution of $\bar{X_1} - \bar{X_2}$ (3)
+
+- Change parameters of one of the populations and see what happens
+
+```{r sampling_diff_mean2, echo = TRUE}
+mu1 <- 100; sigma1 <- 15
+mu2 <- 110; sigma2 <- 10
+sampling_diff <- replicate(i,
+                           mean(rnorm(N, mu1, sigma1)) -
+                           mean(rnorm(N, mu2, sigma2)))
+```
+
+<!-- \pause -->
+
+```{r sampling_diff_mean3, echo = TRUE, fig.show='hide'}
+hist(sampling_diff)
+mean(sampling_diff) # mu1 - mu2
+var(sampling_diff)
+sigma1^2 / N + sigma2^2 / N # sum of both variances
+```
+
+
+## Sampling distribution of $\bar{X_1} - \bar{X_2}$ (4)
+
+- Sampling distribution of $\bar{X_1} - \bar{X_2}$:
+    - Normal
+    - $\mu = \mu_1 - \mu_2$
+    - $\sigma_{\bar{X_1} - \bar{X_2}} = \sqrt{\sigma^2_{\bar{X_1}} + \sigma^2_{\bar{X_2}}}$
+
+
+## Sampling distribution of $\bar{X_1} - \bar{X_2}$ (5)
+
+```{r sampling_diff_mean_plot, fig.show = TRUE}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="", main="")
+mtext(expression(bar(X)[1]-bar(X)[2]), 1, 2, at=3.5, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+axis(1, at=0, labels=expression(italic(H[0]): mu[1]-mu[2]==0), lty=2, cex.axis=1.5)
+text(1.5, .3, expression(sigma[bar(X)[1]-bar(X)[2]]^2 == sigma[bar(X)[1]]^2 + sigma[bar(X)[2]]^2), pos=4, cex=1.7)
+text(1.5, .18, expression(sigma[bar(X)[1]-bar(X)[2]]^2 == frac(sigma[1]^2,N[1]) + frac(sigma[2]^2,N[2])), pos=4, cex=1.7)
+```
+
+## Standardised sampling distribution of $\bar{X_1} - \bar{X_2}$
+
+```{r sampling_diff_mean_z_plot, fig.show = TRUE}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="", main="")
+mtext(expression(italic(z)), 1, 2, at=3.5, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+axis(1, at=0, labels=0, lty=2)
+axis(1, at=c(-3, -2, -1, 1, 2, 3), labels=rep("", 6), lty=2, lwd.ticks=1, lwd=0)
+mtext(c(-3, -2, -1, 1, 2, 3), 1, .5, at=c(-3, -2, -1, 1, 2, 3), cex=.7)
+text(2.82, .37, expression(z == frac((bar(X)[1] - bar(X)[2]) - (mu[1] - mu[2]), sqrt(sigma[1]^2/N[1] + sigma[2]^2/N[2]))), cex=1.7)
+text(2.4, .25, expression(italic(H[0]): z == frac(bar(X)[1] - bar(X)[2], sqrt(frac(sigma[1]^2, N[1]) + frac(sigma[2]^2, N[2])))), cex=1.7)
+```
+
+## Student's *t* test
+
+- $\sigma_1$ and $\sigma_2$ are unknown
+- Assumption: $\sigma_1 = \sigma_2$
+- $s_p$: weighted mean of $s_1$ and $s_2$
+- $t = \frac{\bar{X_1} - \bar{X_2}}{s_p * \sqrt{1/N_1 + 1/N_2}}$
+- $df = N_1 + N_2 - 2$
+- If assumption $\sigma_1 = \sigma_2$ does not hold,
+Welch's correction reduces $df$
+
+<!-- \pause -->
+
+```{r t_test, echo = TRUE}
+t.test(m, f, paired = TRUE)
+t.test(m, f)
+t.test(m, f, var.equal = TRUE)
+```
+
+## Dependent *vs* independent *t* test
+
+- dependent (paired samples) *vs* independent *t* test:
+    - $t = \bar{D}/\frac{s_D}{\sqrt{N_D}}$,\
+    where *D* = difference within pair
+    - $t = (\bar{X_1} - \bar{X_2})/(\sqrt{s_p/N_1 + s_p/N_2})$,\
+    where $s_p$ pooled from $s_1$ and $s_2$
+    - denominator: *standard error*
+- (not only) *t* test: an *effect* to *noise* ratio
+    - pairing measurements reduces random variation (noise)
+

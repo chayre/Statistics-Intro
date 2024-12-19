@@ -1,0 +1,104 @@
+---
+title: "Statistics with R, class 18"
+subtitle: "Chi-square tests"
+author: |
+     | Grzegorz Krajewski
+     |
+     | Faculty of Psychology
+     | University of Warsaw
+     |
+     | krajewski@psych.uw.edu.pl
+date: '17 December 2024'
+output: html_document
+theme: "Warsaw"
+header-includes: 
+- \AtBeginSubsection{}
+- \AtBeginSection{}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      prompt=TRUE,
+                      comment='',
+                      results="hide")
+```
+
+
+# $\chi^2$ tests
+
+## Relationship between two categorical variables
+
+\pause
+
+```{r slide1, out.width="1\\linewidth", results='markup'}
+#knitr::opts_knit$set(root.dir = here::here())
+knitr::include_graphics("Resources/slide1.png", dpi = 1000)
+```
+
+## Relationship between two categorical variables
+
+```{r slide2, out.width="1\\linewidth", results='markup'}
+knitr::include_graphics("Resources/slide2.png", dpi = 1000)
+```
+
+## Relationship between two categorical variables
+
+```{r slide3, out.width="1\\linewidth", results='markup'}
+knitr::include_graphics("Resources/slide3.png", dpi = 1000)
+```
+
+
+## $\chi^2$ distribution
+
+```{r chisq-distribution}
+plot(20, .5, xlim=c(0, 20), ylim=c(0, .5), type = "n", xlab = expression(chi^2), ylab = "p")
+for(df in 1:8) {
+     curve(dchisq(x, df), add=TRUE, col=rainbow(8)[df])
+     text(17, .5 - df*.05, paste0("df = ", df), col=rainbow(8)[df], cex = 2)
+}
+```
+
+
+## $\chi^2$ tests
+
+- $\chi^2$ statistic: deviation of *observed* frequencies from *expected* frequencies
+- Probability of $\chi^2$ statistic approximted by $\chi^2$ distribution
+- $\chi^2$ distribution has one parameter: *degrees of freedom*
+- *degrees of freedom*: number of frequencies that can vary freely
+- Two types of $\chi^2$ tests:
+    - (Pearson's) test (of independence)
+        - contingency table
+        - $df = (rows - 1) * (cols - 1)$, e.g. $1 df$ in a 2x2 table
+    - test of goodness of fit:
+        - *df*: number of frequency counts - 1
+
+## Goodness-of-fit
+
+```{r slide4, out.width="1\\linewidth", results='markup'}
+knitr::include_graphics("Resources/slide4.png", dpi = 1000)
+```
+
+
+```{r practice-cdi, include=FALSE}
+read.csv("TitanicSurvival.csv") -> titanic
+table(titanic$passengerClass)
+nrow(titanic) / 3 -> expectedClass
+chisqClass <- sum((table(titanic$passengerClass) - expectedClass)^2 / expectedClass)
+pchisq(chisqClass, 2, lower.tail=FALSE)
+
+chisq.test(table(titanic$passengerClass))
+
+chisq.test(table(titanic$passengerClass), p = c(1, 1, 2)/4)
+chisq.test(table(titanic$passengerClass), p = c(1, 1, 2)/4)$expected
+
+table(titanic$sex, titanic$survived)
+table(titanic$sex); table(titanic$survived); nrow(titanic)
+809 * 466 / 1309
+809 - 809 * 466 / 1309
+466 - 809 * 466 / 1309
+chisq.test(titanic$sex, titanic$survived)$expected
+chisq.test(titanic$sex, titanic$survived)
+chisq.test(titanic$sex, titanic$survived, correct=FALSE)
+```
+
+

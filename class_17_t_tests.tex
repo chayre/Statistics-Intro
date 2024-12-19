@@ -1,0 +1,580 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\usetheme[]{Warsaw}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\newif\ifbibliography
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\AtBeginSubsection{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Statistics with R, class 17},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Statistics with R, class 17}
+\subtitle{\emph{t} tests}
+\author{Grzegorz Krajewski\\
+\strut \\
+Faculty of Psychology\\
+University of Warsaw\\
+\strut \\
+\href{mailto:krajewski@psych.uw.edu.pl}{\nolinkurl{krajewski@psych.uw.edu.pl}}}
+\date{12 December 2024}
+
+\begin{document}
+\frame{\titlepage}
+
+\section{\texorpdfstring{Previously in ``Statistics with
+\emph{R}''\ldots{}}{Previously in ``Statistics with R''\ldots{}}}\label{previously-in-statistics-with-r}
+
+\begin{frame}{Standardised sampling distribution of mean}
+\phantomsection\label{standardised-sampling-distribution-of-mean}
+\begin{center}\includegraphics[height=0.7\textheight]{class_17_t_tests_files/figure-beamer/ssdm-1} \end{center}
+\end{frame}
+
+\begin{frame}{Standardised sampling distribution of mean}
+\phantomsection\label{standardised-sampling-distribution-of-mean-1}
+\begin{center}\includegraphics[height=0.7\textheight]{class_17_t_tests_files/figure-beamer/ssdm2-1} \end{center}
+\end{frame}
+
+\begin{frame}{\emph{t} distribution}
+\phantomsection\label{t-distribution}
+\begin{center}\includegraphics[height=0.8\textheight]{class_17_t_tests_files/figure-beamer/td-1} \end{center}
+\end{frame}
+
+\begin{frame}{\emph{t} distribution}
+\phantomsection\label{t-distribution-1}
+\begin{center}\includegraphics[height=0.8\textheight]{class_17_t_tests_files/figure-beamer/td_tail-1} \end{center}
+\end{frame}
+
+\begin{frame}{Confidence interval around sample mean}
+\phantomsection\label{confidence-interval-around-sample-mean}
+\begin{center}\includegraphics[height=0.8\textheight]{class_17_t_tests_files/figure-beamer/ci_plot-1} \end{center}
+\end{frame}
+
+\begin{frame}{Standardised sampling distribution of mean}
+\phantomsection\label{standardised-sampling-distribution-of-mean-2}
+\begin{center}\includegraphics[height=0.7\textheight]{class_17_t_tests_files/figure-beamer/ssdm_0-1} \end{center}
+\end{frame}
+
+\begin{frame}{Standardised sampling distribution of mean}
+\phantomsection\label{standardised-sampling-distribution-of-mean-3}
+\begin{center}\includegraphics[height=0.7\textheight]{class_17_t_tests_files/figure-beamer/ssdm2_0-1} \end{center}
+\end{frame}
+
+\section{One-sample tests of mean}\label{one-sample-tests-of-mean}
+
+\begin{frame}{Lady tasting tea}
+\phantomsection\label{lady-tasting-tea}
+\begin{center}\includegraphics[height=0.8\textheight]{class_17_t_tests_files/figure-beamer/binom-1} \end{center}
+\end{frame}
+
+\begin{frame}{Statistical tests}
+\phantomsection\label{statistical-tests}
+\begin{itemize}
+\tightlist
+\item
+  Assume \emph{null hypothesis}, \(h_0\) (perhaps make other necessary
+  \emph{assumptions} too).
+\item
+  Decide on \emph{significance level} \(\alpha\) (conventionally default
+  to 0.05).
+\item
+  Construct \emph{sample distribution} of the \emph{test statistic},
+  assuming the truth of \(h_0\) (and considering the other assumptions).
+\item
+  Identify \emph{critical region} (based on \(\alpha\)).
+\item
+  Draw a random sample, collect measurements, calculate the statistic.
+\item
+  Reject, or not, \(h_0\).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{\emph{z} test}
+\phantomsection\label{z-test}
+\begin{itemize}
+\tightlist
+\item
+  30 CogSci students' mean IQ is 105.
+\item
+  Do they come from the population with mean IQ = 100?
+\item
+  \(h_0\): \(\mu_0 = 100\)
+\item
+  \(z = (\bar{X} - \mu_0) / (\sigma / \sqrt{N})\)
+\end{itemize}
+
+\begin{center}\includegraphics[height=0.6\textheight]{class_17_t_tests_files/figure-beamer/z_test-1} \end{center}
+\end{frame}
+
+\begin{frame}[fragile]{One sample \emph{t} test (1)}
+\phantomsection\label{one-sample-t-test-1}
+\begin{itemize}
+\tightlist
+\item
+  From many years' experience we know that CogSci students pass a
+  particular exam with an average score of 26.5. This year there are 10
+  new students and their scores are:
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}}\NormalTok{ scores }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{, }\DecValTok{50}\NormalTok{, }\DecValTok{46}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{37}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{41}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{32}\NormalTok{, }\DecValTok{43}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Are these students better than an average CogSci student?
+
+  \begin{itemize}
+  \tightlist
+  \item
+    I.e., do they come from a population with a different mean?
+  \end{itemize}
+\item
+  \(h_0\): \(\mu_0 = 26.5\)
+\item
+  \(t = (\bar{X} - \mu_0) / (s / \sqrt{N})\)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{One sample \emph{t} test (2)}
+\phantomsection\label{one-sample-t-test-2}
+\begin{center}\includegraphics[height=0.6\textheight]{class_17_t_tests_files/figure-beamer/t_test_1-1} \end{center}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{qt}\NormalTok{(.}\DecValTok{975}\NormalTok{, }\FunctionTok{length}\NormalTok{(scores) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+\SpecialCharTok{\textgreater{}}\NormalTok{ t.statistic }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(scores) }\SpecialCharTok{{-}} \FloatTok{26.5}\NormalTok{) }\SpecialCharTok{/}
+\SpecialCharTok{+}\NormalTok{      (}\FunctionTok{sd}\NormalTok{(scores) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(scores)))}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}[fragile]{One sample \emph{t} test (3)}
+\phantomsection\label{one-sample-t-test-3}
+\begin{center}\includegraphics[height=0.6\textheight]{class_17_t_tests_files/figure-beamer/t_test_2-1} \end{center}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{pt}\NormalTok{(t.statistic, }\FunctionTok{length}\NormalTok{(scores) }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{, }\AttributeTok{lower.tail=}\NormalTok{F) }\SpecialCharTok{*} \DecValTok{2}
+\SpecialCharTok{\textgreater{}} \CommentTok{\# Times 2 to take into account the other tail!}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\section{\texorpdfstring{Paired-sample \emph{t}
+test}{Paired-sample t test}}\label{paired-sample-t-test}
+
+\begin{frame}[fragile]{Paired-sample \emph{t} test (1)}
+\phantomsection\label{paired-sample-t-test-1}
+\begin{itemize}
+\tightlist
+\item
+  Two paired samples
+
+  \begin{itemize}
+  \tightlist
+  \item
+    e.g., repeated measures, siblings etc.
+  \item
+    differences between paired measurements
+  \item
+    \(h_0\): mean difference (\(M\)) = 0
+  \end{itemize}
+\item
+  49 CogSci students took IQ test before and after first semester and
+  for each of them the difference between both scores was calculated
+\item
+  The mean difference was 0.5 (in favour of the second measurement)
+\item
+  Standard deviation of the differences was 1.75. Can we say that a
+  semester of studying CogSci improves intelligence?
+\item
+  \(t = M / (s / \sqrt{N})\)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}}\NormalTok{ .}\DecValTok{5} \SpecialCharTok{/}\NormalTok{ (}\FloatTok{1.75} \SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\DecValTok{49}\NormalTok{))}
+\SpecialCharTok{\textgreater{}} \FunctionTok{pt}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{48}\NormalTok{, }\AttributeTok{lower.tail=}\NormalTok{F) }\SpecialCharTok{*} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}[fragile]{Paired-sample \emph{t} test (2)}
+\phantomsection\label{paired-sample-t-test-2}
+\begin{itemize}
+\tightlist
+\item
+  American scientists compared sexual satisfaction of women and men
+  staying in long term relationships
+\item
+  15 couples were chosen at random and each person estimated their
+  satisfaction on 1-5 scale
+\item
+  There are 15 answers from men and 15 answers from women. Why should we
+  compare them pairwise?
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}}\NormalTok{ m }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\SpecialCharTok{\textgreater{}}\NormalTok{ f }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\SpecialCharTok{\textgreater{}}\NormalTok{ m }\SpecialCharTok{{-}}\NormalTok{ f }\CommentTok{\# differences we want to analyse}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{mean}\NormalTok{(m}\SpecialCharTok{{-}}\NormalTok{f) }\SpecialCharTok{/}\NormalTok{ (}\FunctionTok{sd}\NormalTok{(m}\SpecialCharTok{{-}}\NormalTok{f) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(m}\SpecialCharTok{{-}}\NormalTok{f)))}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\section{\texorpdfstring{Two Sample \emph{t}
+test}{Two Sample t test}}\label{two-sample-t-test}
+
+\begin{frame}{Two independent samples}
+\phantomsection\label{two-independent-samples}
+\begin{itemize}
+\tightlist
+\item
+  Most of the time we deal with two samples that are not matched
+\item
+  \(h_0\): both samples come from populations with the same mean
+  (\(\mu_1 - \mu_2 = 0\))
+\item
+  Statistic: difference between sample means (\(\bar{X_1} - \bar{X_2}\))
+\item
+  How does sampling distribution of \(\bar{X_1} - \bar{X_2}\) look like?
+\item
+  \emph{Additional assumption}: both samples come from populations with
+  the same variance (\(\sigma^2_1 - \sigma^2_2 = 0\))
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Sampling distribution of
+\(\bar{X_1} - \bar{X_2}\) (1)}
+\phantomsection\label{sampling-distribution-of-barx_1---barx_2-1}
+\begin{itemize}
+\tightlist
+\item
+  We know sampling distribution of a single mean
+
+  \begin{itemize}
+  \tightlist
+  \item
+    and can simulate it\ldots{}
+  \end{itemize}
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}}\NormalTok{ N }\OtherTok{\textless{}{-}} \DecValTok{25}\NormalTok{; mu }\OtherTok{\textless{}{-}} \DecValTok{100}\NormalTok{; sigma }\OtherTok{\textless{}{-}} \DecValTok{15}
+\SpecialCharTok{\textgreater{}}\NormalTok{ i }\OtherTok{\textless{}{-}} \DecValTok{10000}
+\SpecialCharTok{\textgreater{}}\NormalTok{ sampling\_mean }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(i,}\FunctionTok{mean}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(N,mu,sigma)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  Check its shape, mean, and standard deviation (and variance)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{hist}\NormalTok{(sampling\_mean, }\AttributeTok{prob =}\NormalTok{ T) }\CommentTok{\# simulation}
+\SpecialCharTok{\textgreater{}} \FunctionTok{curve}\NormalTok{(}\FunctionTok{dnorm}\NormalTok{(x, mu, sigma }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(N)), }\AttributeTok{add=}\NormalTok{T) }\CommentTok{\# theory}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{mean}\NormalTok{(sampling\_mean) }\CommentTok{\# equals mu (population mean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{sd}\NormalTok{(sampling\_mean) }\CommentTok{\# simulation}
+\SpecialCharTok{\textgreater{}}\NormalTok{ sigma }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(N) }\CommentTok{\# theory}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}[fragile]{Sampling distribution of
+\(\bar{X_1} - \bar{X_2}\) (2)}
+\phantomsection\label{sampling-distribution-of-barx_1---barx_2-2}
+\begin{itemize}
+\tightlist
+\item
+  Simulate sampling distribution of \(\bar{X_1} - \bar{X_2}\)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}}\NormalTok{ sampling\_diff }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(i,}
+\SpecialCharTok{+}                            \FunctionTok{mean}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(N, mu, sigma)) }\SpecialCharTok{{-}}
+\SpecialCharTok{+}                            \FunctionTok{mean}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(N, mu, sigma)))}
+\SpecialCharTok{\textgreater{}} \FunctionTok{hist}\NormalTok{(sampling\_diff)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{mean}\NormalTok{(sampling\_diff) }\CommentTok{\# equals 0 (consistent with h0)}
+\SpecialCharTok{\textgreater{}} \FunctionTok{var}\NormalTok{(sampling\_diff)}
+\SpecialCharTok{\textgreater{}}\NormalTok{ (sigma}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{/}\NormalTok{ N) }\SpecialCharTok{*} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}[fragile]{Sampling distribution of
+\(\bar{X_1} - \bar{X_2}\) (3)}
+\phantomsection\label{sampling-distribution-of-barx_1---barx_2-3}
+\begin{itemize}
+\tightlist
+\item
+  Change parameters of one of the populations and see what happens
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}}\NormalTok{ mu1 }\OtherTok{\textless{}{-}} \DecValTok{100}\NormalTok{; sigma1 }\OtherTok{\textless{}{-}} \DecValTok{15}
+\SpecialCharTok{\textgreater{}}\NormalTok{ mu2 }\OtherTok{\textless{}{-}} \DecValTok{110}\NormalTok{; sigma2 }\OtherTok{\textless{}{-}} \DecValTok{10}
+\SpecialCharTok{\textgreater{}}\NormalTok{ sampling\_diff }\OtherTok{\textless{}{-}} \FunctionTok{replicate}\NormalTok{(i,}
+\SpecialCharTok{+}                            \FunctionTok{mean}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(N, mu1, sigma1)) }\SpecialCharTok{{-}}
+\SpecialCharTok{+}                            \FunctionTok{mean}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(N, mu2, sigma2)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{hist}\NormalTok{(sampling\_diff)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{mean}\NormalTok{(sampling\_diff) }\CommentTok{\# mu1 {-} mu2}
+\SpecialCharTok{\textgreater{}} \FunctionTok{var}\NormalTok{(sampling\_diff)}
+\SpecialCharTok{\textgreater{}}\NormalTok{ sigma1}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{/}\NormalTok{ N }\SpecialCharTok{+}\NormalTok{ sigma2}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{/}\NormalTok{ N }\CommentTok{\# sum of both variances}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}{Sampling distribution of \(\bar{X_1} - \bar{X_2}\) (4)}
+\phantomsection\label{sampling-distribution-of-barx_1---barx_2-4}
+\begin{itemize}
+\tightlist
+\item
+  Sampling distribution of \(\bar{X_1} - \bar{X_2}\):
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Normal
+  \item
+    \(\mu = \mu_1 - \mu_2\)
+  \item
+    \(\sigma_{\bar{X_1} - \bar{X_2}} = \sqrt{\sigma^2_{\bar{X_1}} + \sigma^2_{\bar{X_2}}}\)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Sampling distribution of \(\bar{X_1} - \bar{X_2}\) (5)}
+\phantomsection\label{sampling-distribution-of-barx_1---barx_2-5}
+\begin{center}\includegraphics[height=0.8\textheight]{class_17_t_tests_files/figure-beamer/sampling_diff_mean_plot-1} \end{center}
+\end{frame}
+
+\begin{frame}{Standardised sampling distribution of
+\(\bar{X_1} - \bar{X_2}\)}
+\phantomsection\label{standardised-sampling-distribution-of-barx_1---barx_2}
+\begin{center}\includegraphics[height=0.8\textheight]{class_17_t_tests_files/figure-beamer/sampling_diff_mean_z_plot-1} \end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Student's \emph{t} test}
+\phantomsection\label{students-t-test}
+\begin{itemize}
+\tightlist
+\item
+  \(\sigma_1\) and \(\sigma_2\) are unknown
+\item
+  Assumption: \(\sigma_1 = \sigma_2\)
+\item
+  \(s_p\): weighted mean of \(s_1\) and \(s_2\)
+\item
+  \(t = \frac{\bar{X_1} - \bar{X_2}}{s_p * \sqrt{1/N_1 + 1/N_2}}\)
+\item
+  \(df = N_1 + N_2 - 2\)
+\item
+  If assumption \(\sigma_1 = \sigma_2\) does not hold, Welch's
+  correction reduces \(df\)
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\SpecialCharTok{\textgreater{}} \FunctionTok{t.test}\NormalTok{(m, f, }\AttributeTok{paired =} \ConstantTok{TRUE}\NormalTok{)}
+\SpecialCharTok{\textgreater{}} \FunctionTok{t.test}\NormalTok{(m, f)}
+\SpecialCharTok{\textgreater{}} \FunctionTok{t.test}\NormalTok{(m, f, }\AttributeTok{var.equal =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\end{frame}
+
+\begin{frame}{Dependent \emph{vs} independent \emph{t} test}
+\phantomsection\label{dependent-vs-independent-t-test}
+\begin{itemize}
+\tightlist
+\item
+  dependent (paired samples) \emph{vs} independent \emph{t} test:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(t = \bar{D}/\frac{s_D}{\sqrt{N_D}}\),\\
+    where \emph{D} = difference within pair
+  \item
+    \(t = (\bar{X_1} - \bar{X_2})/(\sqrt{s_p/N_1 + s_p/N_2})\),\\
+    where \(s_p\) pooled from \(s_1\) and \(s_2\)
+  \item
+    denominator: \emph{standard error}
+  \end{itemize}
+\item
+  (not only) \emph{t} test: an \emph{effect} to \emph{noise} ratio
+
+  \begin{itemize}
+  \tightlist
+  \item
+    pairing measurements reduces random variation (noise)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\end{document}

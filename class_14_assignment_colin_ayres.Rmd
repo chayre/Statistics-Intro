@@ -1,0 +1,245 @@
+---
+title: "class_14_samplingVariance_ColinAyres.Rmd"
+author: "Colin Ayres"
+date: "2024-12-05"
+output: html_document
+---
+
+# Sampling distribution of mean exercises (**solutions**)
+
+## Exercise 1
+
+- Assuming that IQ is normally distributed with $\mu = 100$ and $\sigma = 15$
+what is the probability of drawing a random sample with:
+    - $N=25$ and $\bar{X} > 130$
+    - $N=25$ and $\bar{X}$
+    between 85 and 115?
+    - $N=25$ and $\bar{X}$
+    between 95 and 105?
+- How does decreasing the sample size to 10 affects these probabilities?
+- Try making your own guesses before checking with *R*!
+
+
+## Solution to Ex.1
+
+```{r exercises1, echo=TRUE}
+mu <- 100; sigma <- 15; n <- 25
+pnorm(130, mu, sigma / sqrt(n), lower.tail=F)
+all.equal(0,
+    pnorm(130, mu, sigma / sqrt(n), lower.tail=F))
+# Above checks if it's zero
+pnorm(115, mu, sigma / sqrt(n)) -
+    pnorm(85, mu, sigma / sqrt(n))
+pnorm(105, mu, sigma / sqrt(n)) -
+    pnorm(95, mu, sigma / sqrt(n))
+```
+
+```{r exercises2, echo=FALSE}
+n <- 10
+pnorm(130, mu, sigma / sqrt(n), lower.tail=F)
+pnorm(115, mu, sigma / sqrt(n)) - pnorm(85, mu, sigma / sqrt(n))
+pnorm(105, mu, sigma / sqrt(n)) - pnorm(95, mu, sigma / sqrt(n))
+```
+
+## Exercise 2
+
+- Assuming that IQ is normally distributed with $\mu = 100$ and $\sigma = 15$
+and you draw a random sample of 50 people, what is the range of values around $\mu$
+that your sample mean will fall in with the probability of 95%?
+
+<!-- \pause -->
+
+```{r plot1, out.height="60%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean IQ for N = 50"))
+axis(1, 0, "100")
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+```
+
+## Solution to Ex.2
+
+```{r plot2, out.height="80%"}
+n <- 50
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean IQ for N = 50"))
+axis(1, qnorm(c(.025, .975)),
+     c("qnorm(.025, mu, sigma / sqrt(n))", "qnorm(.975, mu, sigma / sqrt(n))"))
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+```
+
+## Solution to Ex.2 (and *Z* distribution)
+
+
+```{r ex2, echo=TRUE}
+qnorm(.025, mu, sigma / sqrt(n))
+mu + qnorm(.025) * sigma / sqrt(n)
+
+qnorm(.975, mu, sigma / sqrt(n))
+mu + qnorm(.975) * sigma / sqrt(n)
+```
+
+<!-- \pause -->
+
+- $Z$ scores are centred around zero, so:
+
+<!-- \pause -->
+
+```{r ex2_2, echo=TRUE}
+mu + qnorm(.025) * sigma / sqrt(n)
+mu - qnorm(.025) * sigma / sqrt(n)
+```
+
+
+## Exercise 3
+
+- Assuming that IQ is normally distributed with $\mu = 100$ and $\sigma = 15$
+how many people do you need to sample at random
+to have at least 95% chances that their mean will fall between 95 and 105?
+
+<!-- \pause -->
+
+```{r plot3, out.height="60%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean IQ"))
+axis(1, qnorm(c(.025, .5, .975)), c("95", "100", "105"))
+axis(1, qnorm(c(.025, .975)),
+     c("qnorm(.025, mu, sigma / sqrt(?))", "qnorm(.975, mu, sigma / sqrt(?))"),
+     line=1,  lty=0, cex.axis=1.5)
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+```
+
+## $Z$-based solution
+
+```{r plot4, out.height="60%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Z distribution"))
+axis(1, qnorm(c(.025, .5, .975)),
+     c("qnorm(.025)", "0", "qnorm(.975)"))
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+```
+
+<!-- \pause -->
+
+- $Z = \frac{\bar{X} - \mu}{\sigma} * \sqrt{N}$
+- `qnorm(.975)` $= \frac{105 - 100}{15} * \sqrt{N}$
+
+<!-- \pause -->
+
+```{r answers, echo=TRUE}
+ceiling((qnorm(.975)*15/5)^2)
+```
+
+
+# Sampling distribution of variance
+
+## Sampling distribution of variance
+
+$\hat{\sigma}^2 = \frac{1}{N}\sum{(X_i - \bar{X})^2}$
+
+<!-- \pause -->
+
+```{r variance, out.height="50%"}
+i <- 100000
+n <- 10; mu <- 100; sigma <- 15
+variance <- function(x) mean((x - mean(x))^2)
+
+samp <- replicate(i, variance(rnorm(n, mu, sigma)))
+hist(samp, prob=TRUE, main="",
+     sub="N=10", xlab="", ylab="p")
+abline(v = mean(samp), lty=2, lwd=2, col="red")
+abline(v = sigma^2, lty=2, lwd=2, col="blue")
+```
+
+- right-skewed
+    - but asymptotically normal ($N \to \infty$)
+- red: mean of sampling distribution
+- blue: true value of population variance
+    - systematically underestimated
+
+## Sample variance bias (1)
+
+<!-- \pause -->
+
+- Population mean:
+$\mu = \frac{1}{N_{pop}}\sum{X_i}$
+
+- Sample estimate:
+$\hat{\mu} = \bar{X} = \frac{1}{N_{samp}}\sum{X_i}$
+
+- If $N_{samp}$ drawn randomly and independently, estimation error zeroes on average
+
+- Population variance:
+$\sigma^2 = \frac{1}{N_{pop}}\sum{(X_i - \mu)^2}$
+
+- Sample estimate:
+$\hat{\sigma}^2 = \frac{1}{N_{samp}}\sum{(X_i - \bar{X})^2}$
+
+- $\sum{(X_i - \bar{X})^2} \leqslant \sum{(X_i - c)^2}$ for any $c$
+    - just like $\sum{|(X_i - Med)|} \leqslant \sum{|(X_i - c)|}$ for any $c$
+
+
+## Bessel's correction
+
+- Check out [Wikipedia on Bessel's correction](https://en.wikipedia.org/wiki/Bessel%27s_correction)
+
+- Sample estimate of variance:
+$\hat{\sigma}^2 = \frac{1}{df}\sum{(X_i - \bar{X})^2}$
+
+- Degrees of freedom: $df = N - 1$
+    - $\sigma^2 = \frac{1}{N_{samp}-1}\sum{(X_i - \bar{X})^2}$
+
+## Degrees of freedom
+
+- Estimation based on random sample
+- Random, i.e., equal chances for each population element
+- Each sample element = *degree of freedom*
+    - $df = N$
+- Mean estimation:
+    - $\bar{X} = \frac{1}{N}\sum{X_i}$
+    - $\hat{\mu} = \frac{1}{df}\sum{X_i}$
+- Variance estimation (*unbiased*):
+    - One d.f. lost for mean estimation
+    - Once we assume $\bar{X}$, only $N-1$ elements can vary freely
+    - In *R*: `var()`, `sd()`
+- In general: estimating a parameter "costs" 1 d.f.
+
+## Variance sampling distribution exercises
+
+- Mean minimises sum of squared deviations
+    - Check $\sum{(X_i - \bar{X})^2} \leqslant \sum{(X_i - Med)^2}$
+    drawing a random sample "infinitely" many times
+
+- Plot histograms of simulated sampling distributions of variance
+with $N$ vs $N-1$ as denominators
+    - single plot, different colours
+
+- Use a simulated sampling distribution to check
+if variance with $N-1$ is an unbiased estimator
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -1,0 +1,337 @@
+---
+title: "Statistics with R, class 15"
+subtitle: "Interval estimation, confidence intervals, *t* distribution"
+author: |
+     | Grzegorz Krajewski
+     |
+     | Faculty of Psychology
+     | University of Warsaw
+     |
+     | krajewski@psych.uw.edu.pl
+date: '5 December 2024'
+output: html_document
+theme: "Warsaw"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      prompt=TRUE,
+                      comment='',
+                      results="hide",
+                      fig.show = "hide",
+                      fig.align="center")
+#                      tidy=TRUE,
+#                      tidy.opts = list(width.cutoff = 51))
+```
+
+
+# Sampling distributions and estimation
+
+## CLT and sampling distribution of mean
+
+```{r clt, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="", main=expression("Sampling distribution of mean"))
+mtext(expression(bar(X)), 1, 2, at=3.5, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+axis(1, at=0, labels=expression(mu), lty=2)
+text(2.5, .2, expression(sigma[bar(X)] == frac(sigma,sqrt(N))), cex=3)
+```
+
+- $\bar{X} \sim N\left(\mu, \frac{\sigma^2}{N}\right)$
+- What about non-normal population distributions?
+
+## CLT and sampling distribution of mean
+
+```{r clt2, fig.show = TRUE, out.height = "60%"}
+n <- 50
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean"))
+axis(1, qnorm(c(.025, .975)),
+     c("qnorm(.025, mu, sigma / sqrt(n))", "qnorm(.975, mu, sigma / sqrt(n))"))
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+```
+
+- Conventional 5%
+- What are the cut-off points for IQ
+given sample size $N = 25$?
+
+<!-- \pause -->
+
+```{r iq-5percent, eval=FALSE, echo=TRUE}
+qnorm(c(.025, .975), 100, 15/sqrt(25))
+```
+
+
+## Standardised sampling distribution of mean
+
+```{r ssdm, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="", main=expression("Standardised sampling distribution of mean"))
+mtext(expression(italic(z)), 1, 2, at=3.5, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+axis(1, at=qnorm(c(.025,.5,.975)), labels=c("", 0, ""), lty=2, lwd.ticks=1, lwd=0)
+segments(x0=qnorm(c(.025,.975)), y0=-1, y1=.08, lty=2)
+text(qnorm(c(.025,.975))+c(-.4,.5), .002, "2.5%", cex=.75)
+text(qnorm(c(.025,.5,.975)), -.03,
+     labels=c(expression(qnorm(.025)), "", expression(qnorm(.975))),
+	srt=45, xpd=NA, cex=.7, pos=2, offset=-.5)
+text(2.5, .2, expression(z == frac(bar(X) - mu[0], sigma/sqrt(N))), cex=3)
+```
+
+- Standardised cut-off values around `zero` (same abs. value)
+
+```{r z-5percent, eval=FALSE}
+qnorm(c(.025, .975))
+```
+
+
+## Standardised sampling distribution of mean
+
+```{r ssdm2, fig.show = TRUE, out.height = "70%"}
+curve(dnorm, -4, 4, xaxt="n", yaxt="n", xlab="", ylab="",
+main=expression("Sampling distribution of mean"))
+axis(1, qnorm(c(.025, .5, .975)),
+     c(expression(bar(X)[i]), expression(mu), expression(bar(X)[i])), cex.axis=1.2)
+abline(v = qnorm(c(.025, .975)), lty=2)
+text(qnorm(c(.01, .995)), 0, "2.5%")
+mtext(expression(mu - qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=-1, cex=.8)
+mtext(expression(mu + qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=1, cex=.8)
+```
+
+- Easily applicable to any population parameters...
+- $\bar{X}_{2.5\%} = \mu \pm Z_{2.5\%} * \frac{\sigma}{\sqrt{N}}$
+- ... and other cut-off points (e.g., $Z_{0.5\%}$)
+
+```{r z-1percent, eval=FALSE}
+qnorm(c(.005, .995))
+```
+
+# Confidence intervals
+
+## Confidence interval for population mean
+
+```{r ci_plot, fig.show = TRUE, out.height = "70%"}
+plot(-1:5, seq(0, .4, length.out=7), type="n", xaxt="n", yaxt="n", xlab="", ylab="", main=expression("95% CI around mean"))
+curve(dnorm, -4, 4.5, add=TRUE)
+abline(v=qnorm(.975), lty=3)
+curve(dnorm(x, 2*qnorm(.975),), -.5, 8, add=TRUE)
+abline(v=c(0, 2*qnorm(.975)), lty=2)
+curve(dnorm(x, 1,), -3, 5, col="darkgrey", add=TRUE)
+curve(dnorm(x, 2.2,), -2, 6, col="darkgrey", add=TRUE)
+curve(dnorm(x, 3.5,), 0, 7, col="darkgrey", add=TRUE)
+mtext(expression(mu[i]), 1, .2, at=c(1, 2.2, 3.5), col="darkgrey")
+axis(1, at=c(qnorm(c(.5,.975)), 2*qnorm(.975)), line=1.2,
+	labels=c(expression(mu[D]), expression(bar(X)), expression(mu[G])))
+mtext(expression(bar(X) - qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=1, cex=.7)
+mtext(expression(bar(X) + qnorm(.975) %.% sigma/sqrt(N)), 1, 1.7, at=3, cex=.7)
+```
+
+<!-- \pause -->
+
+$CI_{p\%} = \bar{X} \pm Z_{p\%} * \frac{\sigma}{\sqrt{N}}$
+
+
+## Interval estimation
+
+- *p% confidence interval*:
+We have *p* % confidence that the sample comes from a population with
+the parameter falling within the interval.
+
+- $CI_{p\%} = \bar{X} \pm Z_{p\%} * \frac{\sigma}{\sqrt{N}}$
+    - $\bar{X}$: sample mean
+    - $N$: sample size
+    - $\sigma$: population standard deviation
+    - $Z_{p\%}$ value related to *confidence level* p (`qnorm(p/2)`)
+
+
+## Exercises on CI:
+
+- 30 CogSci students were sampled at random and their mean IQ is 117.
+Assuming that standard deviation in the population of CogSci students
+is the same as in general population, construct 99% CI around the mean.
+How does it relate to the general population mean IQ? What does it tell us?
+
+- 20 Psychology students were sampled at random and their mean IQ is 105.
+Assuming that standard deviation in the population of Psychology students
+is the same as in general population, can we say with 95% confidence level
+that mean IQ of Psychology students differs from the general population mean IQ?
+    
+
+## Solutions (CI):
+
+```{r ci_exercises, echo=TRUE}
+#Ex.1
+117 + qnorm(.995) * 15 / sqrt(30)
+117 - qnorm(.995) * 15 / sqrt(30)
+# General population mean outside CI
+# CogSci population different
+
+#Ex.2
+105 + qnorm(.975) * 15 / sqrt(20)
+105 - qnorm(.975) * 15 / sqrt(20)
+# General population mean within CI
+# Psych population not different??
+```
+
+
+## Simulation of CI
+
+```{r ci_sim1, echo=TRUE, eval=FALSE}
+i <- 10000
+mu <- 100; sigma <- 15; n <- 50
+mean(replicate(i, {
+   s <- rnorm(n, mu, sigma)
+   mu >= mean(s) - qnorm(.975) * sigma/sqrt(n) &
+   mu <= mean(s) + qnorm(.975) * sigma/sqrt(n)
+}))
+```
+
+- Analyse the code and predict its outcome
+- Copy the code and run it
+- How do the values of N and sigma affect CIs?
+
+## Simulation of CI
+
+```{r ci_plot1, fig.show = TRUE, out.height = "60%"}
+mu <- 100; sigma <- 15; n <- 50
+k <- 50
+plot(seq(mu-15, mu+15, length.out=k), 1:k,
+     type="n", xlab="", ylab="Sample no",
+     main=expression("95% CI around mean"))
+abline(v=mu)
+mtext(expression(mu), 3)
+for(i in 1:k) {
+   s <- rnorm(n, mu, sigma)
+   segments(x0 = mean(s) - qnorm(.975)
+* sigma/sqrt(n),
+            x1 = mean(s) + qnorm(.975)
+* sigma/sqrt(n), y0=i, lwd=5)
+}
+```
+
+- How do the values of N and sigma affect CIs?
+    - How does CIs' width depend on them?
+    - What about the frequency with which the population mean falls within the CI?
+    - They affect the width of CI, never how often population mean falls within CI
+
+
+# *t* distribution
+
+## Unknown population variance
+
+- So far we were a bit unrealistic assuming we know population sd
+    - in most cases, if we did we would know the mean as well
+    - What can we do about it??
+- Use sample standard deviation as an estimate (could it possibly work?)
+- Modify the simulation accordingly and check the outcome
+
+## Unknown population variance
+
+```{r ci_sim2, echo=TRUE, eval=FALSE}
+i <- 10000
+mu <- 165; sigma <- 5; N <- 20
+mean(replicate(i, {
+   s <- rnorm(N, mu, sigma)
+   mu >= mean(s) - qnorm(.975) * sd(s)/sqrt(N) &
+   mu <= mean(s) + qnorm(.975) * sd(s)/sqrt(N)
+}))
+```
+
+- How does N affect CIs?
+    - Check the outcome for $N=10$ and $N=100$
+    - The actual confidence level lower than expected 95%
+    - The greater N the smaller the difference
+- Why is the CI width systematically underestimated?
+
+```{r ci_plot2, fig.show='hide'}
+mu <- 165; sigma <- 5; N <- 20
+k <- 50
+plot(seq(mu-15, mu+15, length.out=k), 1:k,
+     type="n", xlab="", ylab="Sample no",
+     main=expression("95% CI around mean"))
+abline(v=mu)
+mtext(expression(mu), 3)
+for(i in 1:k) {
+   s <- rnorm(N, mu, sigma)
+   segments(x0 = mean(s) - qnorm(.975)
+* sd(s)/sqrt(N),
+            x1 = mean(s) + qnorm(.975)
+* sd(s)/sqrt(N), y0=i, lwd=5)
+}
+```
+
+## *t* distribution
+
+```{r td, fig.show = TRUE, out.height = "80%"}
+curve(dnorm, -4, 4, lwd=2 , xaxt="n", yaxt="n", xlab="", ylab="", main=expression(paste(italic(t), " distributions")))
+text(2.3, .3, expression(paste(italic(z), " distribution")), col="black", cex=1.3, pos=4)
+mtext(0, 1, 0, cex=.8)
+mtext(expression(z == (bar(X) - mu[0]) / (sigma/sqrt(N))), 1, 1.2, cex=1.2)
+mtext(expression(t == (bar(X) - mu[0]) / (s/sqrt(N))), 1, 3, cex=1.2)
+mtext(expression(italic(p)), 2, 1, at=.35, cex=1.2, las=1)
+abline(v=0, lty=3)
+segments(x0=qnorm(.975), y0=-1, y1=.08, lty=2)
+for (df in c(5, 10, 15, 20)) {
+	curve(dt(x, df), col=df, add=TRUE)
+	text(2.3, .3-.006*df, paste("df =", df), col=df, cex=1.3, pos=4)
+	segments(x0=qt(.975, df=df), y0=-1, y1=.08, lty=2, col=df)
+}
+```
+
+## *t* distribution
+
+```{r td_tail, fig.show = TRUE, out.height = "80%"}
+par(mar=c(6, 4, 4, 2))
+curve(dnorm, 1.95, 3, lwd=2 , xaxt="n", yaxt="n", xlab="", ylab="", main=expression(paste(italic(t), " distributions: critical regions")))
+axis(1, at=c(2, 3))
+mtext(expression(italic(z)), 1, 2.2, at=2.8, cex=1.4)
+mtext(expression(italic(t)), 1, 3.2, at=2.8, cex=1.4)
+mtext(expression(italic(p)), 2, 1, at=.06, cex=1.4, las=1)
+segments(x0=qnorm(.975), y0=-1, y1=.08, lty=2)
+text(qnorm(.975), -.006, labels=expression(qnorm(.975)), srt=45, xpd=NA, cex=.6, pos=2, offset=.2)
+for (df in c(5, 10, 15, 20)) {
+	curve(dt(x, df), col=df, add=TRUE)
+	text(2.3, .3-.006*df, paste("df =", df), col=df, cex=1.3, pos=4)
+	segments(x0=qt(.975, df=df), y0=-1, y1=.08, lty=2, col=df)
+	text(qt(.975, df), -.006, labels=paste("qt(.975, ", df, ")", sep=""), srt=45, xpd=NA, cex=.6, pos=2, offset=.2, col=df)
+}
+```
+
+## *t* distribution
+
+- Modify the simulation accordingly
+    - using `qt()`
+
+<!-- \pause -->
+
+```{r cit_sim, echo=TRUE, eval=FALSE}
+i <- 10000
+mu <- 165; sigma <- 5; N <- 20
+mean(replicate(i, {
+   s <- rnorm(N, mu, sigma)
+   mu >= mean(s) - qt(.975, N-1) * sd(s)/sqrt(N) &
+   mu <= mean(s) + qt(.975, N-1) * sd(s)/sqrt(N)
+}))
+```
+
+
+## *t* distribution and CIs -- exercise
+
+- $CI_{p\%} = \bar{X} \pm t_{p\%}(df) * \frac{s}{\sqrt{N}}$
+
+- 25 people were randomly sampled,
+their mean shoe size is 40 and
+the standard deviation of their shoe sizes
+is 3.
+
+- Using *t* distribution, calculate the upper limit
+of 95% CI around mean.
+
+<!-- \pause -->
+
+```{r cit_exercise, echo=TRUE}
+40 + qt(.975, 24) * 3 / sqrt(25)
+```
+

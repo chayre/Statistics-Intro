@@ -1,0 +1,74 @@
+---
+title: "Norwegian CDI"
+author: "Colin Ayres"
+output: html_document
+date: "December 10, 2024"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We read data from "norwegian_cdi.csv" file.
+We only keep the "WG" subset (there are two age versions,
+"**W**ords & **G**estures" for younger and "**W**ords & **S**entences" for older children).
+We remove columns we don't need, keeping only
+"child_id", "age", "comprehension", "production", "sex", and "caregiver_education".
+
+```{r data_import}
+# Lines below contain various fragments of required commands
+read.csv("norwegian_cdi.csv") -> cdi
+"WG"  -> cdi
+"child_id", "age", "comprehension", "production", "sex", "caregiver_education" -> cdi
+```
+
+There are `r ` responses in total,
+with age ranging from `r ` to `r ` months.
+
+Below is a scatterplot of *production* scores by age.
+Blue dots are female scores and pink dots are male scores.
+
+```{r plot}
+# "col" argument (below) can take a single value, e.g., "red",
+# or a whole vector of values, e.g., specifing colour for each dot.
+?(, ,
+     col = ifelse(),
+     xlab = "Months", ylab = "Production score")
+```
+
+We focus now on the oldest group. There are `r sum()` children in this group.
+The bounds of the 95% CI for the true (population) mean of *comprehension* scores for them is printed
+below:
+
+```{r oldest-CI95-comprehension}
+ -> cdi20
+
+```
+
+The bounds of the 95% CI for the true (population) mean of *production* scores for them is printed
+below:
+
+```{r oldest-CI95-production}
+
+```
+
+
+## Bonus
+
+We also calculate the *comprehension* CIs for girls and boys (in the oldest group).
+
+> It's not obligatory! Don't worry, if you can't work out how to use `tapply()` below,
+> but please remember to set `eval` to `FALSE` for the chunk in that case,
+> so that the document knits even without working code below.
+
+```{r oldest-CI95-comprehension-sex, eval=TRUE}
+# tapply() splits a vector given as the first argument,
+# using vector(s) given as the second argument,
+# and to each part of the original vector applies a function
+# given as the third argument.
+
+tapply(, , function(x) {
+    mean(x) + qt(c( , ), ) *
+})
+```
+

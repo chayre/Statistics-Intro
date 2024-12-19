@@ -1,0 +1,82 @@
+---
+title: "American CDI data"
+author: "Colin Ayres"
+output: html_document
+date: "2024-11-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data preparation
+
+Import the data from `cdi.csv`:
+
+```{r import}
+read.csv("cdi.csv") -> cdi
+```
+
+Reshape the data frame to the *long* format gathering responses to each item (word)
+in a single column called `response` and adding a column identifying items (words) called `item`:
+
+```{r reshape}
+colnames(cdi)[grep("item_", colnames(cdi))] -> words
+reshape(cdi, direction = "long", varying = words, v.names = "response", timevar = "item", times = words, idvar = "student") -> long_cdi
+```
+
+- `response == "produces"`: the child can say and understand a given word
+- `response == "understands"`: the child can only understand a given word
+
+Add a column (logical or 0/1) called `production` coding whether a child can say the word
+and a column (logical or 0/1) called `comprehension` coding whether a child can understand the word only:
+
+```{r prod-compr}
+
+long_cdi$production <- ifelse(long_cdi$response == "produces", 1, 0)
+long_cdi$comprehension <- ifelse(long_cdi$response == "understands", 1, 0)
+#If either production or comprehension then they can comprehend. "either" column represents comprehension
+long_cdi$either <- ifelse(long_cdi$production == 1 | long_cdi$comprehension == 1, 1, 0)
+```
+
+*Could we transform the data into even a "longer" format now?*
+
+To make the data longer we need multiple columns which contain the same variable. I can't make my long_cdi data longer.
+
+Create a new data frame with summed up comprehension scores for each child
+(and keeping age, sex and parental education):
+
+```{r compr-scores}
+aggregate(list(summed_comprehension = long_cdi$either), list(age = long_cdi$age, caregiver_education = long_cdi$caregiver_education, sex = long_cdi$sex, student = long_cdi$student), sum) -> cdi_sums
+```
+
+**Make sure you haven't lost any data when performing any of the above transformations**
+**(reshaping and aggregating in particular).**
+
+I have `r nrow(cdi_sums)` rows in my aggregate data frame but `r nrow(cdi)` rows in the original data frame. The reason this happened is because of NA columns; subjects with NA in the caregiver_education column weren't included in the aggregate
+
+## Comprehension by sex and parental education
+
+Reduce the number of education levels by collapsing them in a sensible way
+and a print a table with frequency distribution of the resulting variable:
+
+```{r edu-collapse}
+cdi_sums$caregiver_education <- ifelse(cdi_sums$caregiver_education == "Some Secondary" , "Primary", cdi_sums$caregiver_education)
+cdi_sums$caregiver_education <- ifelse(cdi_sums$caregiver_education == "Some College" , "Secondary", cdi_sums$caregiver_education)
+cdi_sums$caregiver_education <- ifelse(cdi_sums$caregiver_education == "Some Graduate" , "College", cdi_sums$caregiver_education)
+cdi_sums$caregiver_education <- factor(cdi_sums$caregiver_education, levels = c("Primary", "Secondary", "College", "Graduate"))
+```
+
+
+There were `r nrow(cdi_sums[cdi_sums$sex=="Male",])` boys and `r nrow(cdi_sums[cdi_sums$sex=="Female",])` girls in the sample.
+
+Add a barplot of mean scores by sex and parental education:
+
+```{r barplot}
+barplot(tapply(cdi_sums$summed_comprehension, list(cdi_sums$caregiver_education, cdi_sums$sex), mean, na.rm = TRUE), beside = TRUE, ylim = c(0, 300), legend = TRUE) -> cdi_plot
+#cdi_sums$caregiver_education, cdi_sums$sex
+tapply(cdi_sums$summed_comprehension, list(cdi_sums$caregiver_education, cdi_sums$sex), mean, na.rm = TRUE) -> cdimeans
+sqrt(tapply(cdi_sums$summed_comprehension, list(cdi_sums$caregiver_education, cdi_sums$sex), var, na.rm = TRUE)) -> cdisds
+arrows(x0 = cdi_plot, y0 = cdimeans - cdisds, x1 = cdi_plot, y1 = cdimeans + cdisds, angle = 90, code = 3)
+```
+
